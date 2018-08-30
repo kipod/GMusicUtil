@@ -16,11 +16,12 @@ def main():
             artist = tr['artist']
             album = tr['album']
             if artist not in artist_album:
-                artist_album[artist] = [album,]
+                artist_album[artist] = [album, ]
             if album not in artist_album[artist]:
-                artist_album[artist] += [album,]
+                artist_album[artist] += [album, ]
 
         print(json.dumps(artist_album, indent=2, ensure_ascii=False))
+        api.logout()
 
 
 if __name__ == "__main__":

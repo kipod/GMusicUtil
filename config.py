@@ -3,13 +3,6 @@ from gmusicapi import Mobileclient
 import os
 CONFIG_FILE_NAME = 'gmusic2mp3.json'
 
-def print_all_my_devices(api: Mobileclient):
-    for device in api.get_registered_devices():
-        print('{')
-        for k in device:
-            print('\t{}: {}'.format(k, device[k]))
-        print('}')
-
 def generate_config():
     CONFIG = {
         'login': 'music_fun@gmail.com',

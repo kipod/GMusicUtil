@@ -37,6 +37,7 @@ def main():
                         full_path = os.path.join(dir_name, file_name)
                         if not os.path.exists(full_path):
                             wget.download(url, full_path)
+        api.logout()
 
 
 if __name__ == "__main__":

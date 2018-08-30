@@ -16,12 +16,13 @@ def main():
             artist = tr['artist']
             album = tr['album']
             if artist not in artist_album:
-                artist_album[artist] = [album,]
+                artist_album[artist] = [album, ]
             if album not in artist_album[artist]:
-                artist_album[artist] += [album,]
+                artist_album[artist] += [album, ]
 
         CONFIG['albums'] = artist_album
         json.dump(CONFIG, open(CONFIG_FILE_NAME, 'w', encoding='utf8'), indent=2, ensure_ascii=False)
+        api.logout()
 
 
 if __name__ == "__main__":
