@@ -11,11 +11,11 @@ def main():
 
         lib = api.get_all_songs()
         albums = CONFIG['albums']
-        for artis in albums:
-            for album in albums[artis]:
-                tracks = sorted([t for t in lib if t['album'] == album and t['artist'] == artis], key=lambda t: t['trackNumber'])
+        for artist in albums:
+            for album in albums[artist]:
+                tracks = sorted([t for t in lib if t['album'] == album and t['artist'] == artist], key=lambda t: t['trackNumber'])
                 if tracks:
-                    dir_name = os.path.join(CONFIG['root_dir'], artis, "{} {}".format(tracks[0]['year'], album))
+                    dir_name = os.path.join(CONFIG['root_dir'], artist, "{} {}".format(tracks[0]['year'], album))
                     if not os.path.exists(dir_name):
                         os.makedirs(dir_name)
                     for tr in tracks:

@@ -28,4 +28,4 @@ if not os.path.exists(CONFIG_FILE_NAME):
     generate_config()
     raise AssertionError('Cannot find config file. But, for example, generated the new one; please edit it :)')
 
-CONFIG = json.load(open(CONFIG_FILE_NAME, 'r'))
+CONFIG = json.load(open(CONFIG_FILE_NAME, 'r', encoding='utf8'))
