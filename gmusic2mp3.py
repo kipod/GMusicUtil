@@ -33,6 +33,7 @@ def main():
                         url = api.get_stream_url(tr['id'])
                         file_name = '{:02d} {}.mp3'.format(tr['trackNumber'], tr['title'])
                         file_name = file_name.replace('/', '-')
+                        file_name = file_name.replace('"', '-')
                         full_path = os.path.join(dir_name, file_name)
                         if not os.path.exists(full_path):
                             wget.download(url, full_path)
