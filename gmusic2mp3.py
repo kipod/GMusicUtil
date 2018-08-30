@@ -5,14 +5,18 @@ from config import CONFIG
 
 def main():
     api = Mobileclient()
+    print('login as {} to Google Music...'.format(CONFIG['login']))
     if api.login(CONFIG['login'], CONFIG['password'], CONFIG['device_id']):
         if not api.is_subscribed:
             raise AssertionError('You has not Google Music subscription :(')
 
+        print('Reading all songs...')
         lib = api.get_all_songs()
         albums = CONFIG['albums']
         for artist in albums:
+            print('Artist: {}'.format(artist))
             for album in albums[artist]:
+                print('Album: {}'.format(album))
                 tracks = sorted([t for t in lib if t['album'] == album and t['artist'] == artist], key=lambda t: t['trackNumber'])
                 if tracks:
                     dir_name = os.path.join(CONFIG['root_dir'], artist, "{} {}".format(tracks[0]['year'], album))
