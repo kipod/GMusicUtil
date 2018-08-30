@@ -1,5 +1,6 @@
 import json
 from gmusicapi import Mobileclient
+import os
 CONFIG_FILE_NAME = 'gmusic2mp3.json'
 
 def print_all_my_devices(api: Mobileclient):
@@ -16,12 +17,11 @@ def generate_config():
         'device_id': '39c5fb55f84a1d9a',
         'root_dir': r'C:\Users\nikol\GMusic',
         'albums': {
-            'Несчастный случай': 'Чернослив и курага',
-            'System Of A Down': 'Mezmerize'
+            'Несчастный случай': ['Чернослив и курага', ],
+            'System Of A Down': ['Mezmerize', ]
         }
     }
-    with open(CONFIG_FILE_NAME, 'w', encoding='utf8') as f:
-        json.dump(CONFIG, f, indent=2, ensure_ascii=False)
+    json.dump(CONFIG, open(CONFIG_FILE_NAME, 'w', encoding='utf8'), indent=2, ensure_ascii=False)
 
 
 if not os.path.exists(CONFIG_FILE_NAME):
