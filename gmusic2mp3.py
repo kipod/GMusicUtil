@@ -2,10 +2,16 @@ import os
 
 import wget
 from gmusicapi import Mobileclient
-from mp3_tagger import VERSION_1, VERSION_2, VERSION_BOTH, MP3File
+from mp3_tagger import VERSION_1, VERSION_2, MP3File
 from mp3_tagger.genres import GENRES
 
 from config import CONFIG
+
+
+def str_utf8(value: str) -> str:
+    result = value.replace('\u2019', "'")
+    result = result.encode('utf-8').decode('utf-8')
+    return result
 
 
 def update_tags(track: map, path_mp3: str):
@@ -30,18 +36,19 @@ def update_tags(track: map, path_mp3: str):
     elif tags and tags['ID3TagV2']['album'] is None:
         tags = None
     if not tags or not (tags['ID3TagV1']['album'] in tags['ID3TagV2']['album']):
-    # if True:
-        title = track['title']
-        title = title.replace('\u2019',"'")
-        genre = track['genre']
+        title = str_utf8(track['title'])
+        genre = str_utf8(track['genre'])
+        album = str_utf8(track['album'])
+        artist = str_utf8(track['artist'])
+        composer = str_utf8(track['composer'])
         print('  fix tags for track: {}'.format(title))
 
         mp3 = MP3File(path_mp3)
         mp3.set_version(VERSION_1)
-        mp3.album = track['album']
-        mp3.artist = track['artist']
+        mp3.album = album
+        mp3.artist = artist
         mp3.year = str(track['year'])
-        mp3.composer = track['composer']
+        mp3.composer = composer
         for gen_idx in range(len(GENRES)):
             if GENRES[gen_idx] in genre:
                 mp3.set_version(VERSION_1)
@@ -53,15 +60,16 @@ def update_tags(track: map, path_mp3: str):
 
         mp3 = MP3File(path_mp3)
         mp3.set_version(VERSION_2)
-        mp3.album = track['album']
-        mp3.artist = track['artist']
+        mp3.album = album
+        mp3.artist = artist
         mp3.year = str(track['year'])
-        mp3.composer = track['composer']
+        mp3.composer = composer
         mp3.genre = genre
         mp3.song = title
         mp3.track = str(track['trackNumber'])
         mp3.save()
     pass
+
 
 def main():
     api = Mobileclient()
@@ -78,7 +86,8 @@ def main():
                 print('Artist: {}'.format(artist))
                 for album in albums[artist]:
                     print('Album: {}'.format(album))
-                    tracks = sorted([t for t in lib if t['album'] == album and t['artist'] == artist], key=lambda t: t['trackNumber'])
+                    tracks = sorted([t for t in lib if t['album'] == album and t['artist'] == artist],
+                                    key=lambda t: t['trackNumber'])
                     if tracks:
                         dir_name = os.path.join(CONFIG['root_dir'], artist, "{} {}".format(tracks[0]['year'], album))
                         if not os.path.exists(dir_name):
