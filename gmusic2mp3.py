@@ -1,3 +1,4 @@
+''' Download mp3 files from Google Music Library '''
 import os
 
 import wget
@@ -11,6 +12,16 @@ from config import CONFIG
 def str_utf8(value: str) -> str:
     result = value.replace('\u2019', "'")
     result = result.encode('utf-8').decode('utf-8')
+    return result
+
+
+def fix_file_name(file_name):
+    result = file_name.replace('/', '-')
+    result = result.replace(':', '-')
+    result = result.replace('"', '-')
+    result = result.replace('?', '.')
+    result = result.replace('`', '\'')
+    result = result.replace('(', '\'')
     return result
 
 
@@ -43,31 +54,38 @@ def update_tags(track: map, path_mp3: str):
         composer = str_utf8(track['composer'])
         print('  fix tags for track: {}'.format(title))
 
-        mp3 = MP3File(path_mp3)
-        mp3.set_version(VERSION_1)
-        mp3.album = album
-        mp3.artist = artist
-        mp3.year = str(track['year'])
-        mp3.composer = composer
-        for gen_idx in range(len(GENRES)):
-            if GENRES[gen_idx] in genre:
-                mp3.set_version(VERSION_1)
-                mp3.genre = gen_idx
-                break
-        mp3.song = title
-        mp3.track = str(track['trackNumber'])
-        mp3.save()
+        for _ in range(2):
+            mp3 = MP3File(path_mp3)
+            mp3.set_version(VERSION_1)
+            mp3.album = album
+            mp3.artist = artist
+            mp3.year = str(track['year'])
+            mp3.composer = composer
+            try:
+                for gen_idx in range(len(GENRES)):
+                    if GENRES[gen_idx] in genre:
+                        mp3.set_version(VERSION_1)
+                        mp3.genre = gen_idx
+                        break
+            except UnicodeEncodeError:
+                pass
+            mp3.song = title
+            mp3.track = str(track['trackNumber'])
+            mp3.save()
 
-        mp3 = MP3File(path_mp3)
-        mp3.set_version(VERSION_2)
-        mp3.album = album
-        mp3.artist = artist
-        mp3.year = str(track['year'])
-        mp3.composer = composer
-        mp3.genre = genre
-        mp3.song = title
-        mp3.track = str(track['trackNumber'])
-        mp3.save()
+            mp3 = MP3File(path_mp3)
+            mp3.set_version(VERSION_2)
+            mp3.album = album
+            mp3.artist = artist
+            mp3.year = str(track['year'])
+            mp3.composer = composer
+            try:
+                mp3.genre = genre
+            except UnicodeEncodeError:
+                pass
+            mp3.song = title
+            mp3.track = str(track['trackNumber'])
+            mp3.save()
     pass
 
 
@@ -89,7 +107,7 @@ def main():
                     tracks = sorted([t for t in lib if t['album'] == album and t['artist'] == artist],
                                     key=lambda t: t['trackNumber'])
                     if tracks:
-                        dir_name = os.path.join(CONFIG['root_dir'], artist, "{} {}".format(tracks[0]['year'], album))
+                        dir_name = os.path.join(CONFIG['root_dir'], fix_file_name(artist), "{} {}".format(tracks[0]['year'], fix_file_name(album)))
                         if not os.path.exists(dir_name):
                             os.makedirs(dir_name)
                         for tr in tracks:
@@ -100,14 +118,13 @@ def main():
                                     full_path = os.path.join(dir_name, img_file_name)
                                     if not os.path.exists(full_path):
                                         wget.download(artRef['url'], full_path)
-                            url = api.get_stream_url(tr['id'])
                             file_name = '{:02d} {}.mp3'.format(tr['trackNumber'], tr['title'])
-                            file_name = file_name.replace('/', '-')
-                            file_name = file_name.replace('"', '-')
+                            file_name = fix_file_name(file_name)
                             full_path = os.path.join(dir_name, file_name)
                             if not os.path.exists(full_path):
+                                url = api.get_stream_url(tr['id'])
                                 wget.download(url, full_path)
-                            update_tags(tr, full_path)
+                                update_tags(tr, full_path)
         finally:
             api.logout()
 
