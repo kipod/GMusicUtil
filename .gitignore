@@ -3,3 +3,4 @@
 .vscode/.ropeproject/
 .idea/
 /google_play_music_logs_*/
+/.venv/
