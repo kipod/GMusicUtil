@@ -15,13 +15,19 @@ def str_utf8(value: str) -> str:
     return result
 
 
-def fix_file_name(file_name):
+def fix_path_name(file_name):
     result = file_name.replace('/', '-')
-    result = result.replace(':', '-')
-    result = result.replace('"', '-')
     result = result.replace('?', '.')
     result = result.replace('`', '\'')
+    return result
+
+
+def fix_file_name(file_name):
+    result = fix_path_name(file_name)
+    result = result.replace(':', '-')
+    result = result.replace('"', '-')
     result = result.replace('(', '\'')
+    result = result.replace(')', '\'')
     return result
 
 
@@ -116,6 +122,7 @@ def main():
                                 for artRef in tr['albumArtRef']:
                                     img_file_name = 'cover.{}.jpg' if i else 'cover.jpg'
                                     full_path = os.path.join(dir_name, img_file_name)
+                                    full_path = fix_path_name(full_path)
                                     if not os.path.exists(full_path):
                                         wget.download(artRef['url'], full_path)
                             file_name = '{:02d} {}.mp3'.format(tr['trackNumber'], tr['title'])
